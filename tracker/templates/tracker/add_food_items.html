@@ -1,0 +1,39 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<h1 class="text-center my-4">Add Food Item</h1>
+<form method="POST" class="p-4 shadow rounded bg-white">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="calories" class="form-label">Calories (per 100g)</label>
+        <input type="float" name="calories" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="protein" class="form-label">Protein (per 100g)</label>
+        <input type="float" name="protein" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="carbs" class="form-label">Carbs (per 100g)</label>
+        <input type="float" name="carbs" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="fats" class="form-label">Fats (per 100g)</label>
+        <input type="float" name="fats" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="default_weight" class="form-label">Default Weight (grams)</label>
+        <input type="number" name="default_weight" class="form-control" value="100">
+    </div>
+
+    <button type="submit" class="btn btn-success">Add Food Item</button>
+</form>
+{% endblock %}

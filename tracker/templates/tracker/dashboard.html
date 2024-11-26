@@ -1,0 +1,72 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<h1 class="text-center my-4">Daily Calorie Tracker - Dashboard</h1>
+
+<form method="post" class="p-4 shadow rounded bg-white mb-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="food_item" class="form-label">Food Item</label>
+        <select name="food_item" class="form-select">
+            {% for food in food_items %}
+            <option value="{{ food.id }}">{{ food.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity (grams)</label>
+        <input type="number" name="quantity" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Meal</button>
+</form>
+
+<h2 class="my-4">
+    Today's Log 
+    {% if logs %}
+        ({{ logs.0.date }})
+    {% else %}
+        (No Logs Yet)
+    {% endif %}
+</h2>
+
+{% if logs %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Food Item</th>
+            <th>Quantity (g)</th>
+            <th>Calories (kcal)</th>
+            <th>Protein (g)</th>
+            <th>Carbs (g)</th>
+            <th>Fats (g)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.food_item.name }}</td>
+            <td>{{ log.quantity }}</td>
+            <td>{{ log.calories|floatformat:2 }}</td>
+            <td>{{ log.protein|floatformat:2 }}</td>
+            <td>{{ log.carbs|floatformat:2 }}</td>
+            <td>{{ log.fats|floatformat:2 }}</td>
+            <td>
+                <a href="{% url 'delete_log' log.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3 class="my-4">Daily Totals</h3>
+<ul class="list-group">
+    <li class="list-group-item">Total Calories: {{ total_calories|floatformat:2 }} kcal</li>
+    <li class="list-group-item">Total Protein: {{ total_protein|floatformat:2 }} g</li>
+    <li class="list-group-item">Total Carbs: {{ total_carbs|floatformat:2 }} g</li>
+    <li class="list-group-item">Total Fats: {{ total_fats|floatformat:2 }} g</li>
+</ul>
+{% else %}
+<p>No logs for today. Start adding meals above!</p>
+{% endif %}
+{% endblock %}

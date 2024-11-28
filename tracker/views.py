@@ -50,7 +50,7 @@ def dashboard(request):
         'total_carbs': total_carbs,
         'total_fats': total_fats,
     }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'tracker/dashboard.html', context)
 
 def delete_log(request, log_id):
     log = DailyLog.objects.get(id=log_id)

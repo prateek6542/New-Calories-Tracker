@@ -76,10 +76,15 @@ WSGI_APPLICATION = 'tracker_calories.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'calories_tracker',  # Database name
+        'USER': 'calories_tracker_user',  # Username
+        'PASSWORD': 'wcduytOQgyleKz4J9Hx1AbAFlwddtcUf',  # Password
+        'HOST': 'dpg-ct44l6ogph6c73c4fmb0-a.oregon-postgres.render.com',  # Hostname
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
+
 
 
 # Password validation

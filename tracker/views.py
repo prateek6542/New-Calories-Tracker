@@ -3,30 +3,53 @@ from .models import FoodItem, Meal, MealFoodItem, DailyLog
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
 
-def dashboard(request):
-    today = now().date()
+# def dashboard(request):
+#     today = now().date()
     
-    if request.method == 'POST':
-        food_id = request.POST.get('food_item')
-        quantity = float(request.POST.get('quantity'))
-        food_item = FoodItem.objects.get(id=food_id)
-        DailyLog.objects.create(food_item=food_item, quantity=quantity, date=today)
+#     if request.method == 'POST':
+#         food_id = request.POST.get('food_item')
+#         quantity = float(request.POST.get('quantity'))
+#         food_item = FoodItem.objects.get(id=food_id)
+#         DailyLog.objects.create(food_item=food_item, quantity=quantity, date=today)
         
-    logs = DailyLog.objects.filter(date=today)
-    total_calories = sum(log.calories for log in logs)
-    total_protein = sum(log.protein for log in logs)
-    total_carbs = sum(log.carbs for log in logs)
-    total_fats = sum(log.fats for log in logs)
+#     logs = DailyLog.objects.filter(date=today)
+#     total_calories = sum(log.calories for log in logs)
+#     total_protein = sum(log.protein for log in logs)
+#     total_carbs = sum(log.carbs for log in logs)
+#     total_fats = sum(log.fats for log in logs)
+
+#     context = {
+#         'logs': logs,
+#         'total_calories': total_calories,
+#         'total_protein': total_protein,
+#         'total_carbs': total_carbs,
+#         'total_fats': total_fats,
+#         'food_items': FoodItem.objects.all(),
+#     }
+#     return render(request, 'tracker/dashboard.html', context)
+
+def dashboard(request):
+    items = FoodItem.objects.all()
+    query = request.GET.get('search', '')
+    if query:
+        items = items.filter(name__icontains=query)
+
+    # Meals logged today
+    today_meals = Meal.objects.filter(date=date.today())
+    total_calories = sum(meal.total_calories() for meal in today_meals)
+    total_protein = sum(meal.total_protein() for meal in today_meals)
+    total_carbs = sum(meal.total_carbs() for meal in today_meals)
+    total_fats = sum(meal.total_fats() for meal in today_meals)
 
     context = {
-        'logs': logs,
+        'items': items,
+        'today_meals': today_meals,
         'total_calories': total_calories,
         'total_protein': total_protein,
         'total_carbs': total_carbs,
         'total_fats': total_fats,
-        'food_items': FoodItem.objects.all(),
     }
-    return render(request, 'tracker/dashboard.html', context)
+    return render(request, 'dashboard.html', context)
 
 def delete_log(request, log_id):
     log = DailyLog.objects.get(id=log_id)
@@ -59,24 +82,32 @@ def daily_log(request):
 
 
 @login_required
+# def log_meal(request):
+#     if request.method == "POST":
+#         meal_name = request.POST['meal_name']
+#         meal = Meal.objects.create(user=request.user, meal_name=meal_name)
+
+#         for key, value in request.POST.items():
+#             if key.startswith('food_item_') and value:
+#                 food_id = value
+#                 quantity_key = f'quantity_{food_id}'
+#                 quantity = float(request.POST.get(quantity_key, 0))
+#                 if quantity > 0:
+#                     food_item = FoodItem.objects.get(id=food_id)
+#                     MealFoodItem.objects.create(meal=meal, food_item=food_item, quantity=quantity)
+
+#         return redirect('dashboard')
+
+#     food_items = FoodItem.objects.all()
+#     return render(request, 'tracker/log_meal.html', {'food_items': food_items})
 def log_meal(request):
-    if request.method == "POST":
-        meal_name = request.POST['meal_name']
-        meal = Meal.objects.create(user=request.user, meal_name=meal_name)
+    if request.method == 'POST':
+        food_item_id = request.POST.get('food_item_id')
+        quantity = float(request.POST.get('quantity'))
+        food_item = FoodItem.objects.get(id=food_item_id)
+        Meal.objects.create(food_item=food_item, quantity=quantity)
 
-        for key, value in request.POST.items():
-            if key.startswith('food_item_') and value:
-                food_id = value
-                quantity_key = f'quantity_{food_id}'
-                quantity = float(request.POST.get(quantity_key, 0))
-                if quantity > 0:
-                    food_item = FoodItem.objects.get(id=food_id)
-                    MealFoodItem.objects.create(meal=meal, food_item=food_item, quantity=quantity)
-
-        return redirect('dashboard')
-
-    food_items = FoodItem.objects.all()
-    return render(request, 'tracker/log_meal.html', {'food_items': food_items})
+    return dashboard(request)
 
 @login_required
 def add_food_item(request):

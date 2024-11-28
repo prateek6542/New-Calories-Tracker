@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import FoodItem, Meal, MealFoodItem, DailyLog
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
+from datetime import date
 
 # def dashboard(request):
 #     today = now().date()

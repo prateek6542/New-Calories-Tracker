@@ -1,121 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+{% extends 'tracker/base.html' %}
 
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
+{% block content %}
+<h1 class="text-center my-4">Daily Calorie Tracker - Dashboard</h1>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
-        .total {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Dashboard</h1>
-
-        <!-- Search Bar -->
-        <form method="get">
-            <input type="text" name="search" placeholder="Search for food items">
-            <button type="submit">Search</button>
-        </form>
-
-        <!-- Food Items -->
-        <h2>Food Items</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Calories (per 100g)</th>
-                    <th>Protein (g)</th>
-                    <th>Carbs (g)</th>
-                    <th>Fats (g)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.calories }}</td>
-                    <td>{{ item.protein }}</td>
-                    <td>{{ item.carbs }}</td>
-                    <td>{{ item.fats }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Log a Meal -->
-        <h2>Log a Meal</h2>
-        <form method="post" action="{% url 'log_meal' %}">
-            {% csrf_token %}
-            <select name="food_item_id">
-                {% for item in items %}
-                <option value="{{ item.id }}">{{ item.name }}</option>
-                {% endfor %}
-            </select>
-            <input type="number" name="quantity" placeholder="Quantity in grams" required>
-            <button type="submit">Log Meal</button>
-        </form>
-
-        <!-- Today's Meals -->
-        <h2>Today's Meals</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Quantity (g)</th>
-                    <th>Calories</th>
-                    <th>Protein</th>
-                    <th>Carbs</th>
-                    <th>Fats</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for meal in today_meals %}
-                <tr>
-                    <td>{{ meal.food_item.name }}</td>
-                    <td>{{ meal.quantity }}</td>
-                    <td>{{ meal.total_calories }}</td>
-                    <td>{{ meal.total_protein }}</td>
-                    <td>{{ meal.total_carbs }}</td>
-                    <td>{{ meal.total_fats }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Totals -->
-        <div class="total">
-            <p>Total Calories: {{ total_calories }}</p>
-            <p>Total Protein: {{ total_protein }} g</p>
-            <p>Total Carbs: {{ total_carbs }} g</p>
-            <p>Total Fats: {{ total_fats }} g</p>
-        </div>
+<form method="post" class="p-4 shadow rounded bg-white mb-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="food_item" class="form-label">Food Item</label>
+        <select name="food_item" class="form-select">
+            {% for food in food_items %}
+            <option value="{{ food.id }}">{{ food.name }}</option>
+            {% endfor %}
+        </select>
     </div>
-</body>
-</html>
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity (grams)</label>
+        <input type="number" name="quantity" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Meal</button>
+</form>
+
+<h2 class="my-4">
+    Today's Log 
+    {% if logs %}
+        ({{ logs.0.date }})
+    {% else %}
+        (No Logs Yet)
+    {% endif %}
+</h2>
+
+{% if logs %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Food Item</th>
+            <th>Quantity (g)</th>
+            <th>Calories (kcal)</th>
+            <th>Protein (g)</th>
+            <th>Carbs (g)</th>
+            <th>Fats (g)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.food_item.name }}</td>
+            <td>{{ log.quantity }}</td>
+            <td>{{ log.calories|floatformat:2 }}</td>
+            <td>{{ log.protein|floatformat:2 }}</td>
+            <td>{{ log.carbs|floatformat:2 }}</td>
+            <td>{{ log.fats|floatformat:2 }}</td>
+            <td>
+                <a href="{% url 'delete_log' log.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3 class="my-4">Daily Totals</h3>
+<ul class="list-group">
+    <li class="list-group-item">Total Calories: {{ total_calories|floatformat:2 }} kcal</li>
+    <li class="list-group-item">Total Protein: {{ total_protein|floatformat:2 }} g</li>
+    <li class="list-group-item">Total Carbs: {{ total_carbs|floatformat:2 }} g</li>
+    <li class="list-group-item">Total Fats: {{ total_fats|floatformat:2 }} g</li>
+</ul>
+{% else %}
+<p>No logs for today. Start adding meals above!</p>
+{% endif %}
+{% endblock %}

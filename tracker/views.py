@@ -31,7 +31,7 @@ def dashboard(request):
 def delete_log(request, log_id):
     log = DailyLog.objects.get(id=log_id)
     log.delete()
-    return redirect('home')
+    return redirect('dashboard')
 
 def daily_log(request):
     today = now().date()
@@ -58,7 +58,7 @@ def daily_log(request):
     return render(request, 'tracker/daily_log.html', context)
 
 
-@login_required
+
 def log_meal(request):
     if request.method == "POST":
         meal_name = request.POST['meal_name']
@@ -78,7 +78,7 @@ def log_meal(request):
     food_items = FoodItem.objects.all()
     return render(request, 'tracker/log_meal.html', {'food_items': food_items})
 
-@login_required
+
 def add_food_item(request):
     if request.method == "POST":
         name = request.POST['name']
@@ -96,4 +96,4 @@ def add_food_item(request):
             default_weight=default_weight,
         )
         return redirect('log_meal')
-    return render(request, 'tracker/add_food_item.html')
+    return render(request, 'tracker/add_food_items.html')
